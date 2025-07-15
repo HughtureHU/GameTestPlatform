@@ -22,7 +22,7 @@ pipeline {
                 // 关键改动 #3: 执行我们为Windows编写的、能打包真实游戏的流程
                 // 使用 '&&' 来确保只有在前一个命令成功后才执行后一个
                 // 路径中的 \ 是Windows的分隔符
-                bat 'call venv\\Scripts\\activate.bat && python scripts\\build_simple_shooter.py'
+                bat 'call backend\\venv\\Scripts\\activate.bat && python backend\\scripts\\build_simple_shooter.py'
             }
         }
     }
