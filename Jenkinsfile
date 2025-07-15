@@ -1,37 +1,36 @@
-// Jenkinsfile - Final Windows Agent Version
+// Jenkinsfile - Final Professional Version
 pipeline {
-    // 关键改动 #1: 指定任务必须在有 'windows' 标签的代理上运行
-    // Jenkins Master看到这个标签，就会把任务派发给我们的Windows Agent
     agent { label 'windows' } 
 
     stages {
-        // 我们将所有步骤都放在一个核心的构建阶段里
-        stage('Build Windows Game on Windows Agent') {
+        stage('Setup Workspace & Build Game') {
             steps {
-                // bat 是在Windows代理上执行批处理命令的步骤
-                echo "--- Job is now running on a Windows Agent! ---"
+                // dir 步骤可以让我们后续所有的bat命令都在'backend'这个子目录里执行
+                dir('backend') {
+                    
+                    // 第1步: 打印当前工作目录，用于调试
+                    echo "--- Current working directory is now inside 'backend' folder ---"
+                    bat 'cd'
 
-                echo "Verifying workspace directory..."
-                // 关键改动 #2: 使用Windows的命令 'cd' (打印当前目录) 和 'dir' (列出文件)
-                // Jenkins会自动把代码拉取到它在Agent上设置的工作目录（比如F:\remote_jenkins\workspace\...）
-                bat 'cd' 
-                bat 'dir'
+                    // 第2步: 动态创建一个全新的、干净的虚拟环境
+                    echo "--- Creating a fresh Python virtual environment... ---"
+                    bat 'python -m venv venv'
 
-                echo "--- Activating Python virtual environment and starting build script... ---"
+                    // 第3步: 激活新环境，并安装所有必需的Python库
+                    echo "--- Installing required Python packages... ---"
+                    bat 'call .\\venv\\Scripts\\activate.bat && pip install "fastapi[all]" requests'
 
-                // 关键改动 #3: 执行我们为Windows编写的、能打包真实游戏的流程
-                // 使用 '&&' 来确保只有在前一个命令成功后才执行后一个
-                // 路径中的 \ 是Windows的分隔符
-                bat 'call backend\\venv\\Scripts\\activate.bat && python backend\\scripts\\build_simple_shooter.py'
+                    // 第4步: 在准备好的环境中，执行真正的游戏打包脚本
+                    echo "--- Starting the game build script... ---"
+                    bat 'call .\\venv\\Scripts\\activate.bat && python scripts\\build_simple_shooter.py'
+                }
             }
         }
     }
 
     post {
-        // 构建后操作
         always {
-            echo '--- Pipeline finished on Windows Agent. ---'
-            // 在这里，我们可以加入步骤来归档构建产物(游戏包)，或者发送通知
+            echo '--- Pipeline finished. ---'
         }
     }
 }
