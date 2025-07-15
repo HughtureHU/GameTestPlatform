@@ -22,7 +22,7 @@ pipeline {
 
                     // 第4步: 在准备好的环境中，执行真正的游戏打包脚本
                     echo "--- Starting the game build script... ---"
-                    bat 'call .\\venv\\Scripts\\activate.bat && python scripts\\build_simple_shooter.py'
+                    bat 'call .\\venv\\Scripts\\activate.bat && python scripts\\build_lyra.py'
                 }
             }
         }
